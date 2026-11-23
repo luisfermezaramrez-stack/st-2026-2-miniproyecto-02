@@ -31,9 +31,7 @@ del grupo. Si falta algún dato, se advierte en la realimentación.
 
 | Nombre completo | Código | Correo institucional |
 |---|---|---|
-| | | |
-| | | |
-| | | |
+| LUIS FERNANDO MEZA RAMIREZ | 22505520 | luis_fer.mezaramrez@uao.edu.co |
 
 ## Entrega
 
