@@ -1,2 +1,11 @@
 modelo,RMSE,MAE,MAPE,parametros,segundos
-estacional ingenuo,53.33,51.46,11.47,0,0.0
+estacional ingenuo,7.33,5.8,4.41,0,0.0
+"SARIMAX(1, 1, 1)(1, 1, 1, 12) + festivos",9.47,8.58,6.56,6,7.0
+KNN,11.88,10.03,7.46,1887,0.5
+XGBoost,11.93,11.11,8.53,2554,1.1
+SVR,12.65,11.35,8.47,1981,0.5
+"LSTM (16 ocultas), 98 épocas",15.1,13.84,10.55,1233,2.3
+Random Forest,17.18,15.63,12.07,13896,3.1
+"Conv1D (16 filtros), 21 épocas",19.64,18.22,13.91,81,0.6
+"MLP (32 ocultas), 54 épocas",22.99,21.31,16.21,609,0.9
+"MLP (8 ocultas), 294 épocas",33.2,29.42,22.43,153,2.3
