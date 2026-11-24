@@ -348,7 +348,7 @@ ahora con más evidencia: **135 meses y un patrón anual muy estable**. Cuando e
 mes del año anterior explica 0.70 de la importancia de las variables, un modelo
 que repite ese mes ya capturó casi todo, y lo que queda es ruido que los
 modelos flexibles convierten en sobreajuste. Con más historia (digamos 30 años,
-300 meses) la comparación podría cambiar, pero esa serie no existe.
+360 meses) la comparación podría cambiar, pero esa serie no existe.
 
 Lo que sí quedó del trabajo es la parte que el miniproyecto 1 no tenía: la
 prueba de que la tabla supervisada no tiene fuga, la rejilla elegida sin ver el
