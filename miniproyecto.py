@@ -489,7 +489,9 @@ def validar_redes(serie):
     Arma la tabla con serie.iloc[:-N_PRUEBA] y deja sus últimos 12 meses para
     validar. Entrena cada candidata con las épocas máximas, se queda con las
     de menor pérdida de validación y guarda las curvas en figuras/perdida.png.
-    Devuelve {nombre: épocas}.
+    Entre los tamaños de MLP queda solo el de menor pérdida de validación, así
+    que el tamaño también se elige sin ver los meses del backtest.
+    Devuelve {nombre: épocas} con una MLP, la LSTM y la Conv1D.
     """
     entrenamiento = serie.iloc[:-N_PRUEBA]
     X, z = filas_completas(entrenamiento)
@@ -499,11 +501,13 @@ def validar_redes(serie):
           f"validación, de {X_val.index[0]:%Y-%m} a {X_val.index[-1]:%Y-%m}")
     figura, eje = plt.subplots(figsize=(8, 3.8))
     elegidas = {}
+    validacion = {}
     for nombre, (construir, secuencia) in CANDIDATAS.items():
         ajustada = Red(construir, secuencia, EPOCAS_MAXIMAS, SEMILLA).fit(
             X_ent, z_ent, X_val, z_val)
         perdidas = np.array(ajustada.perdidas)
         elegidas[nombre] = int(np.argmin(perdidas[:, 1])) + 1
+        validacion[nombre] = perdidas[elegidas[nombre] - 1, 1]
         eje.plot(perdidas[:, 0], linewidth=1, label=f"{nombre}, entrenamiento")
         eje.plot(perdidas[:, 1], linewidth=1, linestyle="--",
                  label=f"{nombre}, validación")
@@ -517,7 +521,12 @@ def validar_redes(serie):
     figura.tight_layout()
     figura.savefig(FIGURAS / "perdida.png", dpi=120)
     plt.close(figura)
-    return elegidas
+    mlps = [nombre for nombre in elegidas if nombre.startswith("MLP")]
+    mejor_mlp = min(mlps, key=validacion.get)
+    print(f"    Tamaño de la MLP: {mejor_mlp}, la de menor pérdida de validación "
+          f"({validacion[mejor_mlp]:.3f}); las demás no pasan al backtest")
+    return {nombre: e for nombre, e in elegidas.items()
+            if nombre == mejor_mlp or nombre not in mlps}
 
 
 def red(nombre, epocas, semilla=SEMILLA):

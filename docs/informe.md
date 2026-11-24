@@ -204,8 +204,9 @@ no alcanza para castigar el sobreajuste.
 
 ## 4. Aprendizaje profundo
 
-**Tres arquitecturas, cuatro configuraciones.** Todas reciben la misma
-información de la tabla (17 columnas); cambia cómo la leen:
+**Tres arquitecturas, cuatro candidatas.** La MLP entra con dos tamaños, 8 y
+32 ocultas, y la validación temporal elige uno antes del *backtest*. Todas
+reciben la misma información de la tabla (17 columnas); cambia cómo la leen:
 
 | Red | Entrada | Arquitectura | Parámetros |
 |---|---|---|---|
@@ -241,14 +242,19 @@ antes. En la MLP de 8 ocultas el mínimo de validación cae en la **época 294 d
 $z$, que está escalada): la red se aprendió de memoria las 87 filas. Las demás
 se detienen antes: la MLP de 32 en la 54 (entrenamiento 0.032, validación
 1.002), la LSTM en la 98 (0.191 y 1.070) y la Conv1D en la 21 (0.805 y 1.856).
-Esas son las épocas que entran al *backtest*: 294, 54, 98 y 21. Sin ese corte
+El tamaño de la MLP se decide con el mismo número: la de 8 ocultas (0.460)
+le gana a la de 32 (1.002), así que al *backtest* entran la MLP de 8 ocultas
+con 294 épocas, la LSTM con 98 y la Conv1D con 21; la MLP de 32 queda fuera
+sin haber visto los 24 meses del *backtest*. Sin ese corte
 las tres últimas curvas terminan peor que en su mínimo (1.159, 4.198 y 5.472 de
 pérdida de validación), así que el corte por validación sí evitó pronósticos
 todavía peores.
 
-**Qué tamaño quedó.** Referido por RMSE en el *backtest*, la mejor red es la
-LSTM (15.10) y la peor la MLP de 8 ocultas (33.20), justo la que tenía el mejor
-número de validación. La explicación está en la ventana: son 12 meses
+**Qué tamaño quedó.** La validación eligió la MLP de 8 ocultas, y en el
+*backtest* es la peor de las tres redes (33.20), mientras que la mejor es la
+LSTM (15.10). La elección no se corrige con el *backtest*: hacerlo sería usar
+los meses de prueba para decidir el tamaño, que es justo la fuga que la
+validación evita. La explicación del mal resultado está en la ventana: son 12 meses
 (2021-04 a 2022-03), un tramo suave de la serie. La MLP lo copia bien y se
 rompe en los 24 meses que siguen, que incluyen el pico de 2022. Con 87 filas de
 entrenamiento, un año de validación no alcanza para elegir la red.
@@ -279,15 +285,14 @@ es usar el promedio 16.82 con su desviación, no el mejor de los cinco.
 | Modelo | RMSE | MAE | MAPE (%) | Parámetros | Segundos |
 |---|---|---|---|---|---|
 | estacional ingenuo | **7.33** | 5.80 | 4.41 | 0 | 0.0 |
-| SARIMAX(1,1,1)(1,1,1,12) + festivos | 9.47 | 8.58 | 6.56 | 6 | 7.0 |
+| SARIMAX(1,1,1)(1,1,1,12) + festivos | 9.47 | 8.58 | 6.56 | 6 | 6.7 |
 | KNN | 11.88 | 10.03 | 7.46 | 1 887 | 0.5 |
 | XGBoost | 11.93 | 11.11 | 8.53 | 2 554 | 1.1 |
 | SVR | 12.65 | 11.35 | 8.47 | 1 981 | 0.5 |
-| LSTM (16 ocultas), 98 épocas | 15.10 | 13.84 | 10.55 | 1 233 | 2.3 |
+| LSTM (16 ocultas), 98 épocas | 15.10 | 13.84 | 10.55 | 1 233 | 2.2 |
 | Random Forest | 17.18 | 15.63 | 12.07 | 13 896 | 3.1 |
 | Conv1D (16 filtros), 21 épocas | 19.64 | 18.22 | 13.91 | 81 | 0.6 |
-| MLP (32 ocultas), 54 épocas | 22.99 | 21.31 | 16.21 | 609 | 0.9 |
-| MLP (8 ocultas), 294 épocas | 33.20 | 29.42 | 22.43 | 153 | 2.3 |
+| MLP (8 ocultas), 294 épocas | 33.20 | 29.42 | 22.43 | 153 | 2.2 |
 
 ![Pronósticos desde el último origen](../figuras/pronosticos.png)
 
@@ -308,7 +313,7 @@ origen, porque con 12 rezagos y pocos diciembres extremos el promedio pesa más
 que el pico. El clásico estacional no suaviza: repite el diciembre anterior.
 
 *La curva de pérdida.* Ya se vio en la sección 4: la MLP de 8 ocultas tuvo la
-mejor pérdida de validación de las cuatro redes (0.460) y el peor RMSE (33.20).
+mejor pérdida de validación de las cuatro candidatas (0.460) y el peor RMSE (33.20).
 La validación de 12 meses premia copiar un tramo suave, no pronosticar.
 
 *La variación entre semillas.* La desviación de 1.76 entre semillas es real,
@@ -337,7 +342,7 @@ hace falta esa lectura. Ese sigue siendo el resultado del miniproyecto 1 y este
 no lo cambió.
 
 Nada de lo que se agregó compró precisión. Los cuatro modelos de AA quedaron
-entre 11.88 y 17.18 y las cuatro redes entre 15.10 y 33.20, contra 7.33 del
+entre 11.88 y 17.18 y las tres redes entre 15.10 y 33.20, contra 7.33 del
 clásico y 9.47 del SARIMAX. La razón es la misma que en el miniproyecto 1,
 ahora con más evidencia: **135 meses y un patrón anual muy estable**. Cuando el
 mes del año anterior explica 0.70 de la importancia de las variables, un modelo
