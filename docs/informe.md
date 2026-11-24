@@ -245,8 +245,8 @@ se detienen antes: la MLP de 32 en la 54 (entrenamiento 0.032, validación
 El tamaño de la MLP se decide con el mismo número: la de 8 ocultas (0.460)
 le gana a la de 32 (1.002), así que al *backtest* entran la MLP de 8 ocultas
 con 294 épocas, la LSTM con 98 y la Conv1D con 21; la MLP de 32 queda fuera
-sin haber visto los 24 meses del *backtest*. Sin ese corte
-las tres últimas curvas terminan peor que en su mínimo (1.159, 4.198 y 5.472 de
+sin haber visto los 24 meses del *backtest*. Sin ese corte, las curvas de
+la MLP de 32, la LSTM y la Conv1D terminan peor que en su mínimo (1.159, 4.198 y 5.472 de
 pérdida de validación), así que el corte por validación sí evitó pronósticos
 todavía peores.
 
